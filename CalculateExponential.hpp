@@ -5,4 +5,6 @@
 
 void CalculateExponential(ComplexNumber **A, int nMax, ComplexNumber **res);
 
+
+
 #endif
