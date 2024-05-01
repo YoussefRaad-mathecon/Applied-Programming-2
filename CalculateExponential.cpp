@@ -1,64 +1,116 @@
-#include "CalculateExponential.hpp"
+#include <iostream>
 #include <cmath>
+#include "CalculateExponential.hpp"
 
-void CalculateExponential(ComplexNumber **A, int nMax, ComplexNumber **res) {
-    int n = nMax; 
+void CalculateExponential(ComplexNumber **A, int nMax, ComplexNumber **res)
+{
+	ComplexNumber **temp1 = new ComplexNumber *[3];
+	ComplexNumber **temp2 = new ComplexNumber *[3];
+	ComplexNumber **temp3 = new ComplexNumber *[3];
+	ComplexNumber **I = new ComplexNumber *[3];
+	for (int i = 0; i < 3; i++)
+	{
+		temp1[i] = new ComplexNumber[3];
+		temp2[i] = new ComplexNumber[3];
+		temp3[i] = new ComplexNumber[3];
+		I[i] = new ComplexNumber[3];
+	}
+	// creating identity matrix
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			if (i == j)
+			{
+				I[i][j] = 1.0;
+			}
+			else
+			{
+				I[i][j] = 0.0;
+			}
+		}
+	}
 
-    // allocate and init the result matrix with 0
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            res[i][j] = ComplexNumber(0, 0);
-        }
-    }
+	if (nMax > 1)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				temp1[i][j] = A[i][j];
+			}
+		}
+		for (int a = 2; a <= nMax; a++)
+		{
+			double m = (double)(a);
+			for (int i = 0; i < 3; i++)
+			{
+				for (int j = 0; j < 3; j++)
+				{
+					temp2[i][j] = 0;
+					for (int k = 0; k < 3; k++)
+					{
+						temp2[i][j] = temp2[i][j] + (temp1[i][k] * A[k][j]);
+					}
+				}
+			}
+			for (int i = 0; i < 3; i++)
+			{
+				for (int j = 0; j < 3; j++)
+				{
+					temp1[i][j] = temp2[i][j]*(1/m);
+					temp3[i][j] = temp3[i][j] + temp1[i][j];
 
-    // temp matrix - hold powers of A
-    ComplexNumber **Apower = new ComplexNumber*[n];
-    for (int i = 0; i < n; i++) {
-    for (int j = 0; j < n; j++) {
-        if (i == j) {
-            Apower[i][j] = ComplexNumber(1, 0);
-        } else {
-            Apower[i][j] = ComplexNumber(0, 0);
-        }
-    }
+				}
+			}
+		}
+	}
+
+	// result = I+A
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			if (nMax > 1)
+			{
+				res[i][j] = I[i][j] + A[i][j] + temp3[i][j];
+			}
+			else if (nMax==0)
+			{
+				res[i][j] = I[i][j] + A[i][j];
+			}
+			else
+			{
+				res[i][j] = I[i][j] + A[i][j];
+			}
+		}
+	}
+	for (int i = 0; i < 3; i++)
+	{
+		delete[] temp1[i];
+		delete[] temp2[i];
+		delete[] temp3[i];
+		delete[] I[i];
+	}
+	delete[] temp1;
+	delete[] temp2;
+	delete[] temp3;
+	delete[] I;
 }
-    //fact term int to 1
-    double fact = 1.0;
 
-    for (int k = 0; k < nMax; k++) {
-        // following formula
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                res[i][j] = res[i][j] + Apower[i][j] * (1 / fact);
-            }
-        }
 
-        // A_power to find A^k
-        ComplexNumber **new_power = new ComplexNumber*[n];
-        for (int i = 0; i < n; i++) {
-            new_power[i] = new ComplexNumber[n];
-            for (int j = 0; j < n; j++) {
-                new_power[i][j] = ComplexNumber(0, 0);
-                // matrix multiplication, i.e A_power * A
-                for (int m = 0; m < n; m++) {
-                    new_power[i][j] = new_power[i][j] + Apower[i][m] * A[m][j];
-                }
-            }
-        }
-        // get rid of mem
-        for (int i = 0; i < n; i++) {
-            delete[] Apower[i];
-        }
-        delete[] Apower;
-        Apower = new_power;
-
-        // update fact for the next term in the series, i.e +1
-        fact *= (k + 1);
-    }
-
-    // get rid of mem
-    for (int i = 0; i < n; i++) {
-        delete[] Apower[i];
-    }
-    delete[] Apower;
+//non mandatory
+void printMatrix(ComplexNumber **A, int rows, int cols)
+{
+	for (int i = 0; i < rows; i++)
+	{
+		for (int j = 0; j < cols; j++)
+		{
+			std::cout << A[i][j] << " ";
+			if (j == cols - 1)
+			{
+				std::cout << "\n";
+			}
+		}
+	}
 }
